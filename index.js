@@ -53,10 +53,12 @@ const server = http.createServer((req, res) => {
         let mime = 'image/png';
         if (m) { mime = m[1]; b64 = m[2]; }
         const buf = Buffer.from(b64, 'base64');
-        const dir = String(p.dir || 'assets').replace(/^\/+|\/+$/g, '') || 'assets';
+        let dir = String(p.dir || 'assets').replace(/^\/+|\/+$/g, '') || 'assets';
+        if (!/^[a-zA-Z0-9_-]+$/.test(dir)) dir = 'assets';
         let ext = (mime.split('/')[1] || 'png').toLowerCase();
         if (ext === 'jpeg') ext = 'jpg';
-        const filename = String(p.filename || (Date.now() + '-' + crypto.randomBytes(6).toString('hex'))) + '.' + ext;
+        let filename = String(p.filename || (Date.now() + '-' + crypto.randomBytes(6).toString('hex')));
+        if (!/\.[a-zA-Z0-9]{2,5}$/.test(filename)) filename = filename + '.' + ext;
         const key = dir + '/' + filename;
         const r = await client.put(key, buf, { mime });
         const url = 'https://' + BUCKET + '.' + REGION + '.aliyuncs.com/' + key;
