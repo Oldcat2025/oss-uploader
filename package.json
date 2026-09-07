@@ -1,0 +1,12 @@
+{
+  "name": "oss-uploader",
+  "version": "1.0.0",
+  "description": "OSS upload service for picture-vision-factory",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ali-oss": "^6.21.0"
+  }
+}
