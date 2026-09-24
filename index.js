@@ -7,6 +7,9 @@ const SK = process.env.OSS_ACCESS_KEY_SECRET || '';
 const BUCKET = process.env.OSS_BUCKET || '';
 const REGION = process.env.OSS_REGION || 'oss-cn-hangzhou';
 const TOKEN = process.env.UPLOAD_TOKEN || '';
+// OSS 单次请求超时：ali-oss 默认 60s，大图（含贴字后的合成图）容易踩超时
+const OSS_TIMEOUT_MS = Number(process.env.OSS_TIMEOUT_MS || 120000);
+const OSS_RETRY_MAX = Number(process.env.OSS_RETRY_MAX || 2);
 
 if (!AK || !SK || !BUCKET) {
   console.error('缺少 OSS 凭证：请设置 OSS_ACCESS_KEY_ID / OSS_ACCESS_KEY_SECRET / OSS_BUCKET');
@@ -18,6 +21,8 @@ const client = new OSS({
   accessKeySecret: SK,
   bucket: BUCKET,
   region: REGION,
+  timeout: OSS_TIMEOUT_MS,
+  retryMax: OSS_RETRY_MAX,
 });
 
 const server = http.createServer((req, res) => {
@@ -29,7 +34,7 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, bucket: BUCKET }));
+    res.end(JSON.stringify({ ok: true, bucket: BUCKET, timeout: OSS_TIMEOUT_MS, retryMax: OSS_RETRY_MAX }));
     return;
   }
 
